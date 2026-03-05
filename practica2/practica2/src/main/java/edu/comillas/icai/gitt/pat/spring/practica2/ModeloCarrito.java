@@ -5,17 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Min;
 
 public record ModeloCarrito(
-        @NotBlank(message="Debe rellenar el identificador")
-        String idCarrito,
+        Long idCarrito,
 
-        @NotBlank(message="Debe rellenar el ID del artículo")
-        String idArticulo,
+        @NotNull(message = "Debe indicar el ID de usuario")
+        Long idUsuario,
 
-        String descripcion,
+        @NotBlank(message = "Debe rellenar el correo del usuario")
+        String correo,
 
-        @Min(value = 1)
-        int unidades,
-
-        @NotNull
-        Float precioFinal
+        Long precioTotal
 ) {}
