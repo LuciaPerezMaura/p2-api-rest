@@ -6,46 +6,54 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.*;
 
-@RestController
+@RestController //Sin esta anotación, la clase sería invisible para la web.
 @RequestMapping("/api/carrito") // Esto aplica "/api/carrito" a TODOS los métodos
+
 public class ControladorCarrito {
 
-    private final Map<String, ModeloCarrito> carritos = new HashMap<>();
+    private final ServicioCarrito servicio;
+
+    public ControladorCarrito(ServicioCarrito servicio) {
+        this.servicio = servicio;
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ModeloCarrito crea(@Valid @RequestBody ModeloCarrito carritoNuevo) {
-        carritos.put(carritoNuevo.idCarrito(), carritoNuevo);
-        return carritoNuevo;
+    public ModeloCarrito crear(@Valid @RequestBody ModeloCarrito modelo) {
+        return servicio.crear(modelo);
     }
 
     @GetMapping
     public List<ModeloCarrito> listar() {
-        return new ArrayList<>(carritos.values());}
+        return servicio.listar();
+    }
 
     @GetMapping("/{id}")
-    public ModeloCarrito leer(@PathVariable String id) {
-        if (!carritos.containsKey(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Carrito no encontrado");
-        }
-        return carritos.get(id);
+    public ModeloCarrito leer(@PathVariable Long id) {
+        return servicio.leer(id);
     }
 
     @PutMapping("/{id}")
-    public ModeloCarrito actualiza(@PathVariable String id, @Valid @RequestBody ModeloCarrito carritoActualizado) {
-        if (!carritos.containsKey(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el carrito para actualizar");
-        }
-        carritos.put(id, carritoActualizado);
-        return carritoActualizado;
+    public ModeloCarrito actualizar(@PathVariable Long id, @Valid @RequestBody ModeloCarrito modelo) {
+        return servicio.actualizar(id, modelo);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void borra(@PathVariable String id) {
-        if (!carritos.containsKey(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el carrito a eliminar");
-        }
-        carritos.remove(id);
+    public void borrar(@PathVariable Long id) {
+        servicio.borrar(id);
+    }
+
+    @PostMapping("/{id}/lineas")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ModeloLineaDeCarrito añadirLinea(@PathVariable Long id,
+                                            @Valid @RequestBody ModeloLineaDeCarrito modelo) {
+        return servicio.añadirLinea(id, modelo);
+    }
+
+    @DeleteMapping("/{id}/lineas/{idLinea}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void borrarLinea(@PathVariable Long id, @PathVariable Long idLinea) {
+        servicio.borrarLinea(id, idLinea);
     }
 }
